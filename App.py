@@ -45,7 +45,6 @@ st.markdown(
         border-color: #ec4899 !important;
         transform: translateY(-2px);
     }
-    /* Estilização da caixa de entrada de texto */
     .stTextInput textarea, .stTextInput input {
         background-color: #1e1b4b !important;
         color: #f8fafc !important;
@@ -90,12 +89,10 @@ if st.session_state.passo == "inicio":
     
     st.markdown("<h4 style='color: #fde047; margin-bottom: 15px;'>🧭 ESCREVA O QUE VOCE FAZ?</h4>", unsafe_allow_html=True)
     
-    # Campo aberto de escrita para o jogador digitando sua resposta final
     resposta_usuario = st.text_area("Digite sua atitude com inteligencia emocional aqui:", placeholder="Ex: Eu respiraria fundo, pegaria as provas e falaria com o gerente...", height=120)
     
     if st.button("Enviar Resposta Final 🚀"):
         if resposta_usuario.strip() != "":
-            # Grava a resposta diretamente no banco temporário
             st.session_state.respostas_usuarios.append(resposta_usuario)
             st.session_state.passo = "fim"
             st.rerun()
@@ -114,6 +111,7 @@ elif st.session_state.passo == "fim":
 # --- PAINEL SEGRETO DO ADMINISTRADOR (SIDEBAR) ---
 st.sidebar.markdown("<h3 style='text-align: center; color: #fde047 !important;'>⭐ CONTROLE ⭐</h3>", unsafe_allow_html=True)
 
+# Adicionado o st.rerun() aqui para forçar a tela a recarregar na hora do clique
 if st.sidebar.button("🔄 Reiniciar Jogo"):
     st.session_state.passo = "inicio"
     st.rerun()
@@ -122,7 +120,6 @@ st.sidebar.markdown("---")
 st.sidebar.markdown("#### 🔐 Painel do Professor / Criador")
 senha = st.sidebar.text_input("Digite a senha para ver as respostas:", type="password")
 
-# Defina a senha do painel aqui dentro das aspas (coloquei '1234' para testar)
 if senha == "1234":
     st.sidebar.success("Acesso Liberado!")
     st.sidebar.markdown("### 📜 Respostas Coletadas:")
