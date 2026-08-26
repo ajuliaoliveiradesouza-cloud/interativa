@@ -146,7 +146,7 @@ historias = {
     },
     "h1_rh": {
         "titulo": "✨ Justiça Feita ✨",
-        "texto": "O RH abre uma investigação interna por conduct antiética contra o colega. Com as provas que você guardou, ele é transferido de setor e você recebe o estorno do seu bônus de forma retroativa. ⚖️",
+        "texto": "O RH abre uma investigação interna por conduta antiética contra o colega. Com as provas que você guardou, ele é transferido de setor e você recebe o estorno do seu bônus de forma retroativa. ⚖️",
         "opcoes": {}
     },
     "h2_inicio": {
@@ -206,6 +206,46 @@ historias = {
         "titulo": "🏆 No Topo do Mercado 🏆",
         "texto": "Uma multinacional vê seu currículo atualizado, sua bagagem de 5 anos e seu cargo recente de coordenação. Eles te contratam direto como Gerente de Divisão. Quem não te deu valor no passado agora assiste ao seu sucesso de longe.",
         "opcoes": {}
+    },
+    "h3_inicio": {
+        "titulo": "🚨 ALERTA DE RISCO IMINENTE",
+        "texto": "Você é o supervisor de turno em uma área operacional crítica. Faltam trinta minutos para encerrar o expediente e a equipe está exausta, louca para ir embora. De repente, você nota que uma das válvulas principais de pressão está operando no limite vermelho, apresentando um ruído anormal. Ignorar isso pode causar um acidente de trabalho grave nas próximas horas, mas interromper a produção agora vai estourar o prazo de entrega de um cliente vital para a empresa, e o gerente geral deixou claro que nenhuma parada seria tolerada hoje.",
+        "opcoes": {
+            "Decido ignorar o alerta, torcendo para que a máquina aguente até o próximo turno assumir, evitando o conflito com a gerência.": "h3_ignorar",
+            "Aperto o botão de parada de emergência imediatamente para garantir a segurança física de todos, mesmo sabendo que serei duramente cobrado pelo prejuízo.": "h3_parada",
+            "Chamo o técnico de manutenção mais experiente para uma avaliação rápida em segredo, tentando achar uma solução sem parar a linha.": "h3_tecnico"
+        }
+    },
+    "h3_ignorar": {
+        "titulo": "💥 O Desastre Operacional",
+        "texto": "A sua omissão custou caro. Dez minutos após a sua saída, a válvula explode, ferindo gravemente um operador do turno da noite e paralisando a fábrica por semanas. A perícia técnica abre uma investigação e descobre que você ignorou os alertas do sistema. A empresa te desliga por justa causa e você responde judicialmente por negligência, com sua reputação profissional totalmente destruída.",
+        "opcoes": {}
+    },
+    "h3_parada": {
+        "titulo": "⚡ O Confronto com a Chefia",
+        "texto": "O gerente geral desce até a pista enfurecido com a parada e esbraveja na frente da equipe, acusando você de incompetência e de arruinar o contrato do mês. Você sente o sangue ferver diante do desrespeito.",
+        "opcoes": {
+            "Bato de frente com o gerente no mesmo tom de voz, afirmando que ele não se importa com a vida dos funcionários e que a culpa é da falta de manutenção.": "h3_briga",
+            "Mantenho a calma, puxo o relatório de medição da válvula e explico friamente o risco iminente de explosão, oferecendo um plano rápido para retomar a produção em segurança.": "h3_gerente_frio"
+        }
+    },
+    "h3_tecnico": {
+        "titulo": "⏳ Corrida Contra o Relógio",
+        "texto": "O técnico avalia e diz que a peça está prestes a romper, mas que ele consegue fazer uma gambiarra temporária de dez minutos se você assumir o risco de mantê-la ligada enquanto ele mexe.",
+        "opcoes": {
+            "Autorizo o procedimento arriscado na tentativa de salvar a meta do dia a qualquer custo.": "h3_ignorar",
+            "Recuso firmemente o risco à vida do técnico, ordeno o isolamento da área e formalizo o chamado de manutenção pesada.": "h3_parada"
+        }
+    },
+    "h3_briga": {
+        "titulo": "❌ Insubordinação Crítica",
+        "texto": "Apesar de estar certo sobre o risco técnico, o seu estouro emocional e a humilhação pública contra o seu superior quebram a hierarquia. O gerente te suspende por insubordinação. O comitê de ética valida o risco da máquina, mas pune severamente a sua falta de postura profissional. Suas chances de crescimento na empresa morrem aqui.",
+        "opcoes": {}
+    },
+    "h3_gerente_frio": {
+        "titulo": "🏆 Liderança de Elite",
+        "texto": "Sua maturidade desarma a agressividade do gerente. Vendo os dados reais que você apresentou de forma controlada, ele engole o orgulho e reconhece que você evitou uma tragédia humana e financeira gigantesca. No mês seguinte, você é indicado pela diretoria para o prêmio de compliance e promovido a Coordenador de Segurança Operacional da planta. Perfeito!",
+        "opcoes": {}
     }
 }
 
@@ -244,6 +284,8 @@ st.sidebar.markdown("<h3 style='text-align: center; color: #fde047 !important;'>
 if st.sidebar.button("🔄 Reiniciar História"):
     if st.session_state.cenario_atual.startswith("h1_"):
         st.session_state.cenario_atual = "h2_inicio"
+    elif st.session_state.cenario_atual.startswith("h2_"):
+        st.session_state.cenario_atual = "h3_inicio"
     else:
         st.session_state.cenario_atual = "h1_inicio"
     st.session_state.resposta_salva = False
