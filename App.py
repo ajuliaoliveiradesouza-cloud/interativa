@@ -1,6 +1,4 @@
 import streamlit as st
-from gtts import gTTS
-import base64
 
 st.set_page_config(page_title="Simulador de Inteligência Emocional", page_icon="💼", layout="centered")
 
@@ -11,19 +9,18 @@ if "resposta_salva" not in st.session_state:
 if "cenario_atual" not in st.session_state:
     st.session_state.cenario_atual = "h1_inicio"
 
-# Função que gera a voz feminina automaticamente na tela atual sem precisar de arquivos salvos
-def tocar_audio_automatico(texto_para_ler):
-    try:
-        clean_text = texto_para_ler.replace("\\n", " ").replace("\n", " ")
-        tts = gTTS(text=clean_text, lang='pt', tld='com.br', slow=False)
-        tts.save("temp.mp3")
-        with open("temp.mp3", "rb") as f:
-            data = f.read()
-            b64 = base64.b64encode(data).decode()
-            md = f'<audio autoplay src="data:audio/mp3;base64,{b64}"></audio>'
-            st.markdown(md, unsafe_allow_html=True)
-    except Exception as e:
-        pass
+# Nova função de voz que usa o próprio navegador (Não precisa de gtts no requirements!)
+def falar_texto_navegador(texto_para_ler):
+    texto_limpo = texto_para_ler.replace("\\n", " ").replace("\n", " ").replace("'", "\\'")
+    componente_js = f"""
+    <script>
+    var msg = new SpeechSynthesisUtterance('{texto_limpo}');
+    msg.lang = 'pt-BR';
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(msg);
+    </script>
+    """
+    st.markdown(componente_js, unsafe_allow_html=True)
 
 st.markdown(
     """
@@ -83,6 +80,7 @@ st.markdown(
         color: #f8fafc !important;
         border: 2px solid #a855f7 !important;
         border-radius: 16px 4px 12px 4px !important;
+        padding: 12px !important;
     }
     .thanks-box {
         background: linear-gradient(135deg, #065f46 0%, #047857 100%);
@@ -90,6 +88,7 @@ st.markdown(
         border-radius: 8px 30px 5px 35px;
         border: 2px solid #34d399;
         text-align: center;
+        box-shadow: 0 8px 25px rgba(52, 211, 153, 0.2);
         margin-top: 20px;
     }
     [data-testid="stSidebar"] {
@@ -144,7 +143,7 @@ Quando o seu sistema finalmente volta a funcionar, o estômago embrulha: o paine
     },
     "h1_gerente": {
         "titulo": "📈 ✨ A Abordagem Profissional ✨",
-        "texto": """Na sala do gerente, você apresenta os fatos friamente: o histórico de e-mails, as mensagens e o horário do travamento. O gerente elogia sua postura controlada. Ele micro-gerencia o seu esforço e decide dividir a comissão entre você e o colega, gerando sua meta computada para a bonificação. Além disso, o colega fica com a reputação manchada perante a liderança.""",
+        "texto": """Na sala do gerente, você apresenta os fatos friamente: o histórico de e-mails, as mensagens e o horário do travamento. O gerente elogia sua postura controlada. Ele reconhece o seu esforço e decide dividir a comissão entre você e o colega, gerando sua meta computada para a bonificação. Além disso, o colega fica com a reputação manchada perante a liderança.""",
         "opcoes": {
             "Agradecer ao gerente e propor uma melhoria no sistema de TI para evitar novos travamentos.": "h1_fim_perfeito",
             "Aceitar, mas mandar uma indireta ácida para o colega no grupo de WhatsApp da equipe.": "h1_confronto"
@@ -235,6 +234,7 @@ Mas no dia do resultado vem o choque de realidade: o sobrinho do gerente, que ac
     "h2_lider_sombra": {
         "titulo": "⭐ Líder de Bastidores ⭐",
         "texto": """Você virou o verdadeiro comandante do setor. O trabalho é tranquilo, seu bolso está cheio e o sobrinho é quem leva as broncas da diretoria executiva quando algo dá errado na operação. Inteligência pura.""",
+        "audio": None,
         "opcoes": {}
     },
     "h2_concorrente_topo": {
@@ -269,7 +269,7 @@ Mas no dia do resultado vem o choque de realidade: o sobrinho do gerente, que ac
         }
     },
     "h3_briga": {"titulo": "❌ Insubordinação Crítica", "texto": """Apesar de estar certo sobre o risco técnico, o seu estouro emocional e a humilhação pública contra o seu superior quebram a hierarquia. O gerente te suspende por insubordinação. O comitê de ética valida o risco da máquina, mas pune severamente a sua falta de postura profissional. Sua chances de crescimento na empresa morrem aqui.""", "opcoes": {}},
-    "h3_gerente_frio": {"titulo": "🏆 Liderança de Elite", "texto": """Sua maturidade desarma a agressividade do gerente. Vendo los dados reais que você apresentou de forma controlada, ele engole o orgulho e reconhece que você evitou uma tragédia humana e financeira gigantesca. No mês seguinte, você é indicado pela diretoria para o prêmio de compliance e promovido a Coordenador de Segurança Operacional da planta. Perfeito!""", "opcoes": {}}
+    "h3_gerente_frio": {"titulo": "🏆 Liderança de Elite", "texto": """Sua maturidade foi além de resolver o conflito: você ajudou a empresa. Três meses depois, o gerente te promove a supervisor pela sua alta inteligência emocional e capacidade de liderança. Perfeito!""", "opcoes": {}}
 }
 
 no_atual = historias[st.session_state.cenario_atual]
@@ -281,8 +281,8 @@ if "titulo" in no_atual:
 
 st.markdown(f"<div class='custom-box'>{no_atual['texto']}</div>", unsafe_allow_html=True)
 
-# GERA E TOCA A VOZ FEMININA AUTOMATICAMENTE A CADA PÁGINA MUDADA
-tocar_audio_automatico(no_atual['texto'])
+# TOCA A VOZ AUTOMÁTICA USANDO O NAVEGADOR (SEM DEPENDER DE GTTS)
+falar_texto_navegador(no_atual['texto'])
 
 st.markdown("<hr>", unsafe_allow_html=True)
 
@@ -304,7 +304,7 @@ else:
             else:
                 st.warning("Escreva algo na caixa de texto antes de salvar!")
     else:
-        st.markdown("<div class='thanks-box'><h3 style='color: #fde047 !important; margin-top: 0px;'>💖 Muito obrigado por participar!</h3><p style='font-size: 1.1rem; margin-bottom: 0px;'>Sua reflexão sobre Inteligência Emocional foi gravada com sucesso e enviada ao painel do avaliador. Seu aprendizado é o premier passo para o sucesso corporativo! ✨🌟</p></div>", unsafe_allow_html=True)
+        st.markdown("<div class='thanks-box'><h3 style='color: #fde047 !important; margin-top: 0px;'>💖 Muito obrigado por participar!</h3><p style='font-size: 1.1rem; margin-bottom: 0px;'>Sua reflexão sobre Inteligência Emocional foi gravada com sucesso e enviada ao painel do avaliador. Seu aprendizado é o primeiro passo para o sucesso corporativo! ✨🌟</p></div>", unsafe_allow_html=True)
 
 st.sidebar.markdown("<h3 style='text-align: center; color: #fde047 !important;'>⭐ CONTROLE ⭐</h3>", unsafe_allow_html=True)
 
