@@ -1,8 +1,9 @@
 import streamlit as st
+from gtts import gTTS
+import base64
 
 st.set_page_config(page_title="Simulador de Inteligência Emocional", page_icon="💼", layout="centered")
 
-# --- BANCO DE DADOS LOCAL DE RESPOSTAS (Sessão Segura) ---
 if "respostas_usuarios" not in st.session_state:
     st.session_state.respostas_usuarios = []
 if "resposta_salva" not in st.session_state:
@@ -10,7 +11,20 @@ if "resposta_salva" not in st.session_state:
 if "cenario_atual" not in st.session_state:
     st.session_state.cenario_atual = "h1_inicio"
 
-# --- INJEÇÃO DE DESIGN AVANÇADO, MÚSICA AMBIENTE E SONS DE CLIQUE ---
+# Função que gera a voz feminina automaticamente na tela atual sem precisar de arquivos salvos
+def tocar_audio_automatico(texto_para_ler):
+    try:
+        clean_text = texto_para_ler.replace("\\n", " ").replace("\n", " ")
+        tts = gTTS(text=clean_text, lang='pt', tld='com.br', slow=False)
+        tts.save("temp.mp3")
+        with open("temp.mp3", "rb") as f:
+            data = f.read()
+            b64 = base64.b64encode(data).decode()
+            md = f'<audio autoplay src="data:audio/mp3;base64,{b64}"></audio>'
+            st.markdown(md, unsafe_allow_html=True)
+    except Exception as e:
+        pass
+
 st.markdown(
     """
     <style>
@@ -69,7 +83,6 @@ st.markdown(
         color: #f8fafc !important;
         border: 2px solid #a855f7 !important;
         border-radius: 16px 4px 12px 4px !important;
-        padding: 12px !important;
     }
     .thanks-box {
         background: linear-gradient(135deg, #065f46 0%, #047857 100%);
@@ -77,7 +90,6 @@ st.markdown(
         border-radius: 8px 30px 5px 35px;
         border: 2px solid #34d399;
         text-align: center;
-        box-shadow: 0 8px 25px rgba(52, 211, 153, 0.2);
         margin-top: 20px;
     }
     [data-testid="stSidebar"] {
@@ -95,10 +107,10 @@ st.markdown(
     document.addEventListener('click', function(e) {
         if (e.target.tagName === 'BUTTON') {
             var sound = document.getElementById('bubble-sound');
-            if(sound) { sound.currentTime = 0; sound.play().catch(function(err){ console.log(err); }); }
+            if(sound) { sound.currentTime = 0; sound.play().catch(function(err){}); }
         }
         var bgMusic = document.getElementById('bg-music');
-        if (bgMusic && bgMusic.paused) { bgMusic.play().catch(function(err){ console.log(err); }); }
+        if (bgMusic && bgMusic.paused) { bgMusic.play().catch(function(err){}); }
     });
     </script>
     """,
@@ -132,7 +144,7 @@ Quando o seu sistema finalmente volta a funcionar, o estômago embrulha: o paine
     },
     "h1_gerente": {
         "titulo": "📈 ✨ A Abordagem Profissional ✨",
-        "texto": """Na sala do gerente, você apresenta os fatos friamente: o histórico de e-mails, as mensagens e o horário do travamento. O gerente elogia sua postura controlada. Ele reconhece o seu esforço e decide dividir a comissão entre você e o colega, gerando sua meta computada para a bonificação. Além disso, o colega fica com a reputação manchada perante a liderança.""",
+        "texto": """Na sala do gerente, você apresenta os fatos friamente: o histórico de e-mails, as mensagens e o horário do travamento. O gerente elogia sua postura controlada. Ele micro-gerencia o seu esforço e decide dividir a comissão entre você e o colega, gerando sua meta computada para a bonificação. Além disso, o colega fica com a reputação manchada perante a liderança.""",
         "opcoes": {
             "Agradecer ao gerente e propor uma melhoria no sistema de TI para evitar novos travamentos.": "h1_fim_perfeito",
             "Aceitar, mas mandar uma indireta ácida para o colega no grupo de WhatsApp da equipe.": "h1_confronto"
@@ -239,11 +251,10 @@ Mas no dia do resultado vem o choque de realidade: o sobrinho do gerente, que ac
             "Chamo o técnico de manutenção mais experiente para uma avaliação rápida em segredo, tentando achar uma solução sem parar a linha.": "h3_tecnico"
         }
     },
-    "h3_ignorar": {"titulo": "💥 O Desastre Operacional", "texto": """A sua omissão custou caro. Dez minutos após a sua saída, a válvula explode, ferindo gravemente um operador do turno da noite e paralisando a fábrica por semanas. A perícia técnica abre uma investigação e descobre que você ignorou os alertas do sistema. A empresa te desliga por justa causa e você responde judicialmente por negligência, com sua reputação profissional totalmente destruída.""", "audio": None, "opcoes": {}},
+    "h3_ignorar": {"titulo": "💥 O Desastre Operacional", "texto": """A sua omissão custou caro. Dez minutos após a sua saída, a válvula explode, ferindo gravemente um operador do turno da noite e paralisando a fábrica por semanas. A perícia técnica abre uma investigação e descobre que você ignorou os alertas do sistema. A empresa te desliga por justa causa e você responde judicialmente por negligência, com sua reputação profissional totalmente destruída.""", "opcoes": {}},
     "h3_parada": {
         "titulo": "⚡ O Confronto com a Chefia",
         "texto": """O gerente geral desce até a pista enfurecido com a parada e esbraveja na frente da equipe, acusando você de incompetência e de arruinar o contrato do mês. Você sente o sangue ferver diante do desrespeito.""",
-        "audio": None,
         "opcoes": {
             "Bato de frente com o gerente no mesmo tom de voz, afirmando que ele não se importa com a vida dos funcionários e que a culpa é da falta de manutenção.": "h3_briga",
             "Mantenho a calma, puxo o relatório de medição da válvula e explico friamente o risco iminente de explosão, oferecendo um plano rápido para retomar a produção em segurança.": "h3_gerente_frio"
@@ -252,14 +263,13 @@ Mas no dia do resultado vem o choque de realidade: o sobrinho do gerente, que ac
     "h3_tecnico": {
         "titulo": "⏳ Corrida Contra o Relógio",
         "texto": """O técnico avalia e diz que a peça está prestes a romper, mas que ele consegue fazer uma gambiarra temporária de dez minutos se você assumir o risco de mantê-la ligada enquanto ele mexe.""",
-        "audio": None,
         "opcoes": {
             "Autorizo o procedimento arriscado na tentativa de salvar a meta do dia a qualquer custo.": "h3_ignorar",
             "Recuso firmemente o risco à vida do técnico, ordeno o isolamento da área e formalizo o chamado de manutenção pesada.": "h3_parada"
         }
     },
-    "h3_briga": {"titulo": "❌ Insubordinação Crítica", "texto": """Apesar de estar certo sobre o risco técnico, o seu estouro emocional e a humilhação pública contra o seu superior quebram a hierarquia. O gerente te suspende por insubordinação. O comitê de ética valida o risco da máquina, mas pune severamente a sua falta de postura profissional. Sua chances de crescimento na empresa morrem aqui.""", "audio": None, "opcoes": {}},
-    "h3_gerente_frio": {"titulo": "🏆 Liderança de Elite", "texto": """Sua maturidade foi além de resolver o conflito: você ajudou a empresa. Três meses depois, o gerente te promove a supervisor pela sua alta inteligência emocional e capacidade de liderança. Perfeito!""", "audio": None, "opcoes": {}}
+    "h3_briga": {"titulo": "❌ Insubordinação Crítica", "texto": """Apesar de estar certo sobre o risco técnico, o seu estouro emocional e a humilhação pública contra o seu superior quebram a hierarquia. O gerente te suspende por insubordinação. O comitê de ética valida o risco da máquina, mas pune severamente a sua falta de postura profissional. Sua chances de crescimento na empresa morrem aqui.""", "opcoes": {}},
+    "h3_gerente_frio": {"titulo": "🏆 Liderança de Elite", "texto": """Sua maturidade desarma a agressividade do gerente. Vendo los dados reais que você apresentou de forma controlada, ele engole o orgulho e reconhece que você evitou uma tragédia humana e financeira gigantesca. No mês seguinte, você é indicado pela diretoria para o prêmio de compliance e promovido a Coordenador de Segurança Operacional da planta. Perfeito!""", "opcoes": {}}
 }
 
 no_atual = historias[st.session_state.cenario_atual]
@@ -270,6 +280,10 @@ if "titulo" in no_atual:
     st.markdown(f"### {no_atual['titulo']}")
 
 st.markdown(f"<div class='custom-box'>{no_atual['texto']}</div>", unsafe_allow_html=True)
+
+# GERA E TOCA A VOZ FEMININA AUTOMATICAMENTE A CADA PÁGINA MUDADA
+tocar_audio_automatico(no_atual['texto'])
+
 st.markdown("<hr>", unsafe_allow_html=True)
 
 if "opcoes" in no_atual and no_atual["opcoes"]:
@@ -290,7 +304,7 @@ else:
             else:
                 st.warning("Escreva algo na caixa de texto antes de salvar!")
     else:
-        st.markdown("<div class='thanks-box'><h3 style='color: #fde047 !important; margin-top: 0px;'>💖 Muito obrigado por participar!</h3><p style='font-size: 1.1rem; margin-bottom: 0px;'>Sua reflexão sobre Inteligência Emocional foi gravada com sucesso e enviada ao painel do avaliador. Seu aprendizado é o primeiro passo para o sucesso corporativo! ✨🌟</p></div>", unsafe_allow_html=True)
+        st.markdown("<div class='thanks-box'><h3 style='color: #fde047 !important; margin-top: 0px;'>💖 Muito obrigado por participar!</h3><p style='font-size: 1.1rem; margin-bottom: 0px;'>Sua reflexão sobre Inteligência Emocional foi gravada com sucesso e enviada ao painel do avaliador. Seu aprendizado é o premier passo para o sucesso corporativo! ✨🌟</p></div>", unsafe_allow_html=True)
 
 st.sidebar.markdown("<h3 style='text-align: center; color: #fde047 !important;'>⭐ CONTROLE ⭐</h3>", unsafe_allow_html=True)
 
