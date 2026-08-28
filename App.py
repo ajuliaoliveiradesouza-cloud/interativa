@@ -2,121 +2,101 @@ import streamlit as st
 
 st.set_page_config(page_title="Simulador de Inteligência Emocional", page_icon="💼", layout="centered")
 
+# --- BANCO DE DADOS LOCAL DE RESPOSTAS (Sessão Segura) ---
 if "respostas_usuarios" not in st.session_state:
     st.session_state.respostas_usuarios = []
 if "resposta_salva" not in st.session_state:
     st.session_state.resposta_salva = False
 if "cenario_atual" not in st.session_state:
-    st.session_state.cenario_atual = "h1_inicio"
+    st.session_state.cenario_atual = "instrucoes" # Começa obrigatoriamente nas instruções
 
-# --- INJEÇÃO DE DESIGN FOFO, MODERNO E ASSIMÉTRICO (CSS) ---
+# --- INJEÇÃO DE DESIGN CORPORATIVO COM TONALIDADES AJUSTADAS (CSS) ---
 st.markdown(
     """
     <style>
-    /* Fundo Gradiente Pastel e Moderno */
     .stApp {
-        background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 35%, #2e1065 70%, #3b0764 100%) !important;
-        color: #f8fafc;
+        background: linear-gradient(135deg, #060913 0%, #0b1120 50%, #171e30 100%) !important;
+        color: #f1f5f9;
         font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     }
-    
-    /* Título Principal Super Lindo e Brilhante */
     h1 {
-        color: #fde047 !important;
-        text-shadow: 4px 4px 15px rgba(253, 224, 71, 0.6);
+        color: #f59e0b !important;
+        text-shadow: 2px 2px 10px rgba(245, 158, 11, 0.15);
         text-align: center;
-        font-weight: 900 !important;
+        font-weight: 800 !important;
         padding-bottom: 5px;
         letter-spacing: -0.5px;
     }
-    
-    /* Subtítulos em Rosa Pastel Fofo */
     h3 {
         color: #f472b6 !important;
-        font-weight: 800 !important;
+        font-weight: 700 !important;
         margin-top: 15px;
-        text-shadow: 2px 2px 10px rgba(244, 114, 182, 0.4);
+        letter-spacing: 0.5px;
+        text-shadow: 1px 1px 6px rgba(244, 114, 182, 0.2);
     }
-    
-    /* Caixa de História Orgânica e Totalmente Assimétrica */
     .custom-box {
-        background: linear-gradient(145deg, #3b0764 0%, #581c87 100%);
+        background: linear-gradient(145deg, #18153b 0%, #250b33 100%);
         padding: 28px;
-        /* Cantos super desiguais para um efeito lúdico e fofo */
-        border-radius: 50px 15px 45px 8px !important; 
-        border-left: 6px solid #fde047;
-        border-right: 3px solid #f472b6;
-        border-bottom: 5px solid #f472b6;
+        border-radius: 30px 6px 25px 6px !important;
+        border-left: 5px solid #f59e0b;
+        border-right: 2px solid #f472b6;
+        border-bottom: 3px solid #f472b6;
         margin-bottom: 30px;
-        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.15);
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45);
+        line-height: 1.75 !important;
+        font-size: 1.05rem !important;
     }
-    
-    /* Botões Rosa-Chiclete com Formato Geométrico Irregular */
     div.stButton > button {
-        background: linear-gradient(135deg, #f472b6 0%, #ec4899 50%, #db2777 100%) !important;
+        background: linear-gradient(135deg, #f472b6 0%, #e11d48 100%) !important;
         color: #ffffff !important;
-        border: 2px solid #fde047 !important;
-        /* Cantos totalmente assimétricos e modernos */
-        border-radius: 12px 35px 8px 40px !important;
-        padding: 18px 24px !important;
-        font-weight: 800 !important;
-        font-size: 1.08rem !important;
-        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-        box-shadow: 0 8px 25px rgba(236, 72, 153, 0.35) !important;
+        border: 1.5px solid #f59e0b !important;
+        border-radius: 8px 25px 6px 30px !important;
+        padding: 16px 22px !important;
+        font-weight: 700 !important;
+        font-size: 1rem !important;
+        transition: all 0.25s ease-in-out !important;
+        box-shadow: 0 4px 15px rgba(244, 114, 182, 0.12) !important;
         width: 100% !important;
         white-space: normal !important;
         text-align: left !important;
         display: block !important;
-        margin-bottom: 16px !important;
+        margin-bottom: 12px !important;
     }
-    
-    /* Efeito Hover Pop-Up Fofo e Divertido */
     div.stButton > button:hover {
-        background: linear-gradient(135deg, #c084fc 0%, #a855f7 100%) !important;
-        color: #fde047 !important;
+        background: linear-gradient(135deg, #a78bfa 0%, #6d28d9 100%) !important;
+        color: #f59e0b !important;
         border-color: #f472b6 !important;
-        transform: scale(1.03) translateY(-4px);
-        box-shadow: 0 15px 30px rgba(168, 85, 247, 0.6) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 22px rgba(109, 40, 217, 0.4) !important;
     }
-    
-    /* Caixa de Texto Assimétrica Confortável */
     .stTextArea textarea {
-        background-color: #0f1123 !important;
-        color: #f8fafc !important;
-        border: 2px solid #a855f7 !important;
-        border-radius: 20px 8px 20px 8px !important;
-        padding: 14px !important;
+        background-color: #090d16 !important;
+        color: #f1f5f9 !important;
+        border: 1.5px solid #6d28d9 !important;
+        border-radius: 12px 4px 12px 4px !important;
+        padding: 12px !important;
     }
-    
-    /* Caixa de Agradecimento Estilo Jardim Mágico */
     .thanks-box {
-        background: linear-gradient(135deg, #065f46 0%, #047857 100%);
+        background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
         padding: 22px;
-        border-radius: 10px 40px 8px 45px;
-        border: 2px solid #34d399;
+        border-radius: 6px 30px 6px 30px;
+        border: 1.5px solid #059669;
         text-align: center;
-        box-shadow: 0 10px 30px rgba(52, 211, 153, 0.3);
-        margin-top: 25px;
+        box-shadow: 0 6px 20px rgba(5, 150, 105, 0.15);
+        margin-top: 20px;
     }
-    
-    /* Barra Lateral Estilo Noite Estrelada */
     [data-testid="stSidebar"] {
-        background-color: #060814 !important;
-        border-right: 3px solid #a855f7;
+        background-color: #03050a !important;
+        border-right: 2px solid #6d28d9;
     }
-    
     hr {
-        border-top: 3px dashed #a855f7 !important;
-        margin: 32px 0 !important;
+        border-top: 2px dashed #6d28d9 !important;
+        margin: 28px 0 !important;
     }
     </style>
     
-    <!-- Áudio de Fundo Oculto: Ruído de chuva suave da natureza em loop contínuo -->
-    <audio id="bg-music" loop autoplay src="https://wikimedia.org" volume="0.3"></audio>
-    
-    <!-- Som de clique: Efeito rápido de gota/bolha de água límpida -->
+    <audio id="bg-music" loop autoplay src="https://wikimedia.org" volume="0.2"></audio>
     <audio id="bubble-sound" src="https://wikimedia.org"></audio>
-    
     <script>
     document.addEventListener('click', function(e) {
         if (e.target.tagName === 'BUTTON') {
@@ -131,8 +111,23 @@ st.markdown(
     unsafe_allow_html=True
 )
 historias = {
+    "instrucoes": {
+        "titulo": "✦ 📋 INSTRUÇÕES DA ATIVIDADE ❖",
+        "texto": """Seja bem-vindo ao Simulador Avançado de Inteligência Emocional Aplicada. Antes de dar início às simulações operacionais, leia atentamente as seguintes diretrizes de engajamento:
+
+❖ OBJETIVO: Esta ferramenta avalia a sua capacidade de gerenciar pressões, tomar decisões racionais sob estresse e navegar por conflitos críticos no ecossistema corporativo.
+
+❖ DINÂMICA DO JOGO: Você enfrentará uma sequência de dilemas reais baseados em rotinas profissionais. Cada decisão tomada ramificará o seu destino técnico, abrindo consequências imediatas para a sua carreira.
+
+❖ CONSIDERAÇÕES FINAIS: Ao atingir o desfecho da linha do tempo escolhida, as opções de botões desaparecerão e você deverá dissertar uma reflexão analítica na caixa de texto. Sua resposta será enviada e avaliada de forma centralizada.
+
+◈ Recomendamos o uso de fones de ouvido para melhor imersão com o som ambiente digital. Clique no botão abaixo para destravar a interface.""",
+        "opcoes": {
+            "🚀 Iniciar Simulação Operacional": "h1_inicio"
+        }
+    },
     "h1_inicio": {
-        "titulo": "✨ 📅 O ÚLTIMO DIA DO MÊS 💖",
+        "titulo": "✦ 📅 O ÚLTIMO DIA DO MÊS ❖",
         "texto": """O relógio corre contra você. É o último dia do mês e o clima na empresa está puro desespero. Você passa horas grudado ao telefone, com o suor frio escorrendo, sabendo que falta apenas uma única venda para bater a meta e garantir aquela bonificação que vai salvar as suas contas.
 
 Após dias de uma negociação exaustiva e cheia de idas e vindas, o cliente finalmente cede. 'Vamos fechar', ele diz. Um alívio gigantesco toma conta do seu peito.
@@ -143,147 +138,147 @@ Enquanto você entra em pânico tentando resolver o problema técnico, nota que 
 
 Quando o seu sistema finalmente volta a funcionar, o estômago embrulha: o painel mostra que a comissão já foi registrada no nome dele. O expediente está no fim, não há mais tempo para correr atrás de outro cliente e a sua bonificação acabou de escorrer pelos dedos.""",
         "opcoes": {
-            "🌸 Vou direto até a mesa dele e tiro a limpo ali mesmo, na frente de todo mundo, exigindo que ele repasse a venda para o meu nome.": "h1_confronto",
-            "🌸 Respiro fundo para controlar a onda de raiva, pego o histórico de conversas com o cliente e procuro o gerente em particular para relatar o ocorrido.": "h1_gerente",
-            "🌸 Engulo a seco, fecho a minha gaveta com força, guardo minhas coisas e vou embora para casa sem falar com ninguém, remoendo o ódio." : "h1_silencio"
+            "◈ Vou direto até a mesa dele e tiro a limpo ali mesmo, na frente de todo mundo, exigindo que ele repasse a venda para o meu nome.": "h1_confronto",
+            "◈ Respiro fundo para controlar a onda de raiva, pego o histórico de conversas com o cliente e procuro o gerente em particular para relatar o ocorrido.": "h1_gerente",
+            "◈ Engulo a seco, fecho a minha gaveta com força, guardo minhas coisas e vou embora para casa sem falar com ninguém, remoendo o ódio.": "h1_silencio"
         }
     },
     "h1_confronto": {
-        "titulo": "🔥 O Confronto Público ⭐",
-        "texto": """Você avança até a mesa dele com sangue nos olhos e grita que ele é um secretário de metas. O escritório inteiro fica em silêncio. O colega se faz de vítima e diz que apenas 'salvou o cliente que estava esperando'. O gerente sai da sala dele furioso com o escândalo. Por ter perdido o controle emocional em público, você é advertido e o gerente se recusa a ouvir sua versão naquele dia. Você perdeu a razão e a bonificação.""",
+        "titulo": "✦ O Confronto Público ❖",
+        "texto": """Você avança até a mesa dele com sangue nos olhos e grita que ele é um secretário de metas. O escritório inteiro fica em silêncio. O colega se faz de vítima e diz que apenas 'salvou o cliente que estava esperando'. O gerente sai da sala dele furioso com o escândalo. Por ter perdido o controle emocional em público, você é advertido e o gerente se recusa a ouvir sua versão naquele dia. Você pediu a razão e a bonificação.""",
         "opcoes": {
-            "✨ Pedir desculpas pelo tom de voz e solicitar uma reunião formal amanhã.": "h1_confronto_reparar",
-            "✨ Continuar batendo boca e ameaçar processar a empresa.": "h1_confronto_demissao"
+            "◈ Pedir desculpas pelo tom de voz e solicitar uma reunião formal amanhã.": "h1_confronto_reparar",
+            "◈ Continuar batendo boca e ameaçar processar a empresa.": "h1_confronto_demissao"
         }
     },
     "h1_gerente": {
-        "titulo": "📈 A Abordagem Profissional ✨",
+        "titulo": "✦ A Abordagem Profissional ❖",
         "texto": """Na sala do gerente, você apresenta os fatos friamente: o histórico de e-mails, as mensagens e o horário do travamento. O gerente elogia sua postura controlada. Ele reconhece o seu esforço e decide dividir a comissão entre você e o colega, gerando sua meta computada para a bonificação. Além disso, o colega fica com a reputação manchada perante a liderança.""",
         "opcoes": {
-            "✨ Agradecer ao gerente e propor uma melhoria no sistema de TI para evitar novos travamentos.": "h1_fim_perfeito",
-            "✨ Aceitar, mas mandar uma indireta ácida para o colega no grupo de WhatsApp da equipe.": "h1_confronto"
+            "◈ Agradecer ao gerente e propor uma melhoria no sistema de TI para evitar novos travamentos.": "h1_fim_perfeito",
+            "◈ Aceitar, mas mandar uma indireta ácida para o colega no grupo de WhatsApp da equipe.": "h1_confronto"
         }
     },
     "h1_silencio": {
-        "titulo": "🌧️ O Ruminar Silencioso 💖",
+        "titulo": "✦ O Ruminar Silencioso ❖",
         "texto": """Você chega em casa destruído e desconta a frustração na sua família. No dia seguinte, seu rendimento despenca e o clima fica insuportável. O colega percebe que você não reagiu e começa a montar em cima de você, roubando novas ideias suas em reuniões, sabendo que você aceita tudo calado.""",
         "opcoes": {
-            "✨ Decidir engolir o orgulho e procurar o RH para relatar o histórico de abusos.": "h1_rh",
-            "✨ Continuar fingindo que nada aconteceu até estourar de vez.": "h1_confronto_demissao"
+            "◈ Decidir engolir o orgulho e procurar o RH para relatar o histórico de abusos.": "h1_rh",
+            "◈ Continuar fingindo que nada aconteceu até estourar de vez.": "h1_confronto_demissao"
         }
     },
     "h1_confronto_reparar": {
-        "titulo": "✨ Conclusão do Cenário 🌟",
-        "texto": """Você reconhece o erro do estouro emocional. O gerente aceita conversar no dia seguinte e, vendo seu arrependimento, aceita analisar o caso da venda. Você não ganha a comissão toda, mas salva metade do bônus. Lição aprendida. ✨""",
+        "titulo": "✦ Conclusão do Cenário ❖",
+        "texto": """Você reconhece o erro do estouro emocional. O gerente aceita conversar no dia seguinte e, vendo seu arrependimento, aceita analisar o caso da venda. Você não ganha a comissão toda, mas salva metade do bônus. Lição aprendida.""",
         "opcoes": {}
     },
     "h1_confronto_demissao": {
-        "titulo": "❌ Fim de Jogo 💔",
+        "titulo": "✦ Fim de Jogo ❖",
         "texto": """Sua falta de controle passa dos limites. A diretoria intervém e você é demitido por justa causa por insubordinação e ameaças. Sem bônus, sem emprego e com as portas fechadas no setor.""",
         "opcoes": {}
     },
     "h1_fim_perfeito": {
-        "titulo": "⭐ Sucesso Absoluto 🎉",
-        "texto": """Sua maturidade foi além de resolver o conflito: você ajudou a empresa. Três meses depois, o gerente te promove a supervisor pela sua alta inteligência emocional e capacidade de liderança. 🎉""",
+        "titulo": "✦ Sucesso Absoluto ❖",
+        "texto": """Sua maturidade foi além de resolver o conflito: você ajudou a empresa. Três meses depois, o gerente te promove a supervisor pela sua alta inteligência emocional e capacidade de liderança.""",
         "opcoes": {}
     },
     "h1_rh": {
-        "titulo": "✨ Justiça Feita ⚖️",
-        "texto": """O RH abre uma investigação interna por conduta antiética contra o colega. Com as provas que você guardou, ele é transferido de setor e você recebe o estorno do seu bônus de forma retroativa. ⚖️""",
+        "titulo": "✦ Justiça Feita ❖",
+        "texto": """O RH abre uma investigação interna por conduta antiética contra o colega. Com as provas que você guardou, ele é transferido de setor e você recebe o estorno do seu bônus de forma retroativa.""",
         "opcoes": {}
     },
     "h2_inicio": {
-        "titulo": "👔 DECEPÇÃO E MERITOCRACIA 🌟",
+        "titulo": "✦ 👔 DECEPÇÃO E MERITOCRACIA ❖",
         "texto": """Você trabalha há 5 anos na empresa e é o melhor do seu setor. Você é referência absoluta e todo mundo te procura por ajuda e pede a sua opinião antes de tomar qualquer decisão importante.
 
-Depois de 5 anos dedicados, você sente que está estagnado e que já mererecia ter sido promovido há muito tempo. Seu salário e suas demandas simplesmente não acompanham tudo o que você faz pela empresa no dia a dia.
+Depois de 5 anos dedicados, você sente que está estagnado e que já merecia ter sido promovido há muito tempo. Seu salário e suas demandas simplesmente não acompanham tudo o que você faz pela empresa no dia a dia.
 
 Finalmente, abriu uma vaga para a função que você quer faz muito tempo e que vai te permitir crescer ainda mais. A empresa abre o processo seletivo interno e você vai super confiante. Todo mundo nos corredores sabe e comenta que você é a escolha óbvia.
 
 Mas no dia do resultado vem o choque de realidade: o sobrinho do gerente, que acabou de se formar na faculdade, nunca trabalhou na área e nem sequer fazia parte da empresa, é contratado diretamente em seu lugar.""",
         "opcoes": {
-            "🌸 Entrar na sala do gerente exigindo uma explicação clara sobre os critérios da escolha, deixando claro que isso foi um ato de puro nepotismo.": "h2_confronto",
-            "🌸 Aceito a situação externamente com profissionalismo, mas decido que a partir de hoje farei apenas o mínimo estrito do meu contrato enquanto procuro outro emprego secretamente.": "h2_quiet_quitting",
-            "🌸 Procuro o novo contratado (o sobrinho) para me colocar à disposição, decidindo agir de forma estratégica para ganhar a confiança dele e do gerente enquanto avalio meus próximos passos." : "h2_estrategia"
+            "◈ Entrar na sala do gerente exigir uma explicação clara sobre os critérios da escolha, deixando claro que isso foi um ato de puro nepotismo.": "h2_confronto",
+            "◈ Aceito a situação externamente com profissionalismo, mas decido que a partir de hoje farei apenas o mínimo estrito do meu contrato enquanto procuro outro emprego secretamente.": "h2_quiet_quitting",
+            "◈ Procuro o novo contratado (o sobrinho) para me colocar à disposição, decidindo agir de forma estratégica para ganhar a confiança dele e do gerente enquanto avalio meus próximos passos.": "h2_estrategia"
         }
     },
     "h2_confronto": {
-        "titulo": "⚡ Portas Fechadas 🌧️",
+        "titulo": "✦ Portas Fechadas ❖",
         "texto": """O gerente se defende dizendo que o sobrinho trouxe uma 'visão moderna e acadêmica'. Sua acusação direta de nepotismo cria uma parede de gelo entre vocês. A partir desse dia, o gerente começa a te cortar de reuniões importantes e passa a monitorar cada minuto do seu dia para achar uma desculpa para te demitir.""",
         "opcoes": {
-            "✨ Pedir demissão imediatamente para preservar seu orgulho, mesmo sem outra vaga garantida.": "h2_demissao_imediata",
-            "✨ Engolir o orgulho temporariamente e abrir uma denúncia formal no canal de ética confidencial da empresa.": "h2_canal_etica"
+            "◈ Pedir demissão imediatamente para preservar seu orgulho, mesmo sem outra vaga garantida.": "h2_demissao_imediata",
+            "◈ Engolir o orgulho temporariamente e abrir uma denúncia formal no canal de ética confidencial da empresa.": "h2_canal_etica"
         }
     },
     "h2_quiet_quitting": {
-        "titulo": "🐢 Operação Padrão 💖",
+        "titulo": "✦ Operação Padrão ❖",
         "texto": """Você para de resolver os problemas dos outros e passa a ignorar e-mails fora do horário. A equipe, que dependia de você, começa a bater cabeça e o setor desanda. O sobrinho do gerente, completamente perdido na função, percebe que você puxou o freio de mão e te dá uma advertência formal por falta de engajamento corporativo.""",
         "opcoes": {
-            "✨ Usar a reunião de feedback para jogar as verdade na cara dele e dizer que ele não tem competência para estar ali.": "h2_confronto",
-            "✨ Ignorar a advertência, acelerar os processos seletivos em outras empresas e pedir as contas assim que passar em uma.": "h2_novo_emprego"
+            "◈ Usar a reunião de feedback para jogar as verdade na cara dele e dizer que ele não tem competência para estar ali.": "h2_confronto",
+            "◈ Ignorar a advertência, acelerar os processos seletivos em outras empresas e pedir as contas assim que passar em uma.": "h2_novo_emprego"
         }
     },
     "h2_estrategia": {
-        "titulo": "🧠 Inteligência Estratégica ⭐",
+        "titulo": "✦ Inteligência Estratégica ❖",
         "texto": """Ao se mostrar prestativo, você vira o porto seguro do rapaz. Em poucas semanas, o sobrinho percebe que sem o seu apoio ele será desmascarado por incompetência. Grato pela sua ajuda, ele te promove a 'Coordenador Técnico' com um aumento salarial expressivo, repassando a autonomia do setor para as suas mãos na prática.""",
         "opcoes": {
-            "✨ Ficar na empresa aproveitando o ótimo salário e a liderança real dos bastidores.": "h2_lider_sombra",
-            "✨ Usar o seu novo cargo de Coordenador e o salário atualizado para rechear seu currículo e aplicar para vagas de Gerente na concorrência.": "h2_concorrente_topo"
+            "◈ Ficar na empresa aproveitando o ótimo salário e a liderança real dos bastidores.": "h2_lider_sombra",
+            "◈ Usar o seu novo cargo de Coordenador e o salário atualizado para rechear seu currículo e aplicar para vagas de Gerente na concorrência.": "h2_concorrente_topo"
         }
     },
     "h2_demissao_imediata": {
-        "titulo": "❌ Fim de Jogo 💔",
+        "titulo": "✦ Fim de Jogo ❖",
         "texto": """Seu impulso emocional te deixa desempregado e sem renda. O mercado de trabalho está difícil e você se arrepende de não ter planejado a sua transição com mais calma. Faltou estratégia racional aqui.""",
         "opcoes": {}
     },
     "h2_canal_etica": {
-        "titulo": "✨ Justiça Feita 🎉",
+        "titulo": "✦ Justiça Feita ❖",
         "texto": """A auditoria da matriz investiga a contratação e comprova o favorecimento ilegal. O gerente geral é demitido por quebra de compliance e o sobrinho é desligado da empresa. A diretoria te convoca para assumir a gerência imediatamente.""",
         "opcoes": {}
     },
     "h2_novo_emprego": {
-        "titulo": "🚀 Novo Rumo ✨",
+        "titulo": "✦ Novo Rumo ❖",
         "texto": """Um mês depois, você aceita uma vaga em um concorrente direto ganhando 40% a mais. No seu último dia de aviso prévio, você vê o setor antigo entrar em colapso total porque ninguém sobrou para guiar o sobrinho perdido. Você mudou de patamar.""",
         "opcoes": {}
     },
     "h2_lider_sombra": {
-        "titulo": "⭐ Líder de Bastidores ✨",
+        "titulo": "✦ Líder de Bastidores ❖",
         "texto": """Você virou o verdadeiro comandante do setor. O trabalho é tranquilo, seu bolso está cheio e o sobrinho é quem leva as broncas da diretoria executiva quando algo dá errado na operação. Inteligência pura.""",
         "opcoes": {}
     },
     "h2_concorrente_topo": {
-        "titulo": "🏆 No Topo do Mercado 🌟",
+        "titulo": "✦ No Topo do Mercado ❖",
         "texto": """Uma multinacional vê seu currículo atualizado, sua bagagem de 5 anos e seu cargo recente de coordenação. Eles te contratam direto como Gerente de Divisão. Quem não te deu valor no passado agora assiste ao seu sucesso de longe.""",
         "opcoes": {}
     },
     "h3_inicio": {
-        "titulo": "🚨 ALERTA DE RISCO IMINENTE ⭐",
+        "titulo": "✦ 🚨 ALERTA DE RISCO IMINENTE ❖",
         "texto": """Você é o supervisor de turno em uma área operacional crítica. Faltam trinta minutos para encerrar o expediente e a equipe está exausta, louca para ir embora. De repente, você nota que uma das válvulas principais de pressão está operando no limite vermelho, apresentando um ruído anormal. Ignorar isso pode causar um acidente de trabalho grave nas próximas horas, mas interromper a produção agora vai estourar o prazo de entrega de um cliente vital para a empresa, e o gerente geral deixou claro que nenhuma parada seria tolerada hoje.""",
         "opcoes": {
-            "🌸 Decido ignorar o alerta, torcendo para que a máquina aguente até o próximo turno assumir, evitando o conflito com a gerência.": "h3_ignorar",
-            "🌸 Aperto o botão de parada de emergência imediatamente para garantir a segurança física de todos, mesmo sabendo que serei duramente cobrado pelo prejuízo.": "h3_parada",
-            "🌸 Chamo o técnico de manutenção mais experiente para uma avaliação rápida em segredo, tentando achar uma solução sem parar a linha." : "h3_tecnico"
+            "◈ Decido ignorar o alerta, torcendo para que a máquina aguente até o próximo turno assumir, evitando o conflito com a gerência.": "h3_ignorar",
+            "◈ Aperto o botão de parada de emergência imediatamente para garantir a segurança física de todos, mesmo sabendo que serei duramente cobrado pelo prejuízo.": "h3_parada",
+            "◈ Chamo o técnico de manutenção mais experiente para uma avaliação rápida em segredo, tentando achar uma solução sem parar a linha.": "h3_tecnico"
         }
     },
-    "h3_ignorar": {"titulo": "💥 O Desastre Operacional 💔", "texto": """A sua omissão custou caro. Dez minutos após a sua saída, a válvula explode, ferindo gravemente um operador do turno da noite e paralisando a fábrica por semanas. A perícia técnica abre uma investigação e descobre que você ignorou os alertas do sistema. A empresa te desliga por justa causa e você responde judicialmente por negligência, com sua reputação profissional totalmente destruída.""", "opcoes": {}},
+    "h3_ignorar": {"titulo": "✦ O Desastre Operacional ❖", "texto": """A sua omissão custou caro. Dez minutos após a sua saída, a válvula explode, ferindo gravemente um operador do turno da noite e paralisando a fábrica por semanas. A perícia técnica abre uma investigação e descobre que você ignorou os alertas do sistema. A empresa te desliga por justa causa e você responde judicialmente por negligência, com sua reputação profissional totalmente destruída.""", "opcoes": {}},
     "h3_parada": {
-        "titulo": "⚡ O Confronto com a Chefia 🌧️",
+        "titulo": "✦ O Confronto com a Chefia ❖",
         "texto": """O gerente geral desce até a pista enfurecido com a parada e esbraveja na frente da equipe, acusando você de incompetência e de arruinar o contrato do mês. Você sente o sangue ferver diante do desrespeito.""",
         "opcoes": {
-            "✨ Bato de frente com o gerente no mesmo tom de voz, afirmando que ele não se importa com a vida dos funcionários e que a culpa é da falta de manutenção.": "h3_briga",
-            "✨ Mantenho a calma, puxo o relatório de medição da válvula e explico friamente o risco iminente de explosão, oferecendo um plano rápido para retomar a produção em segurança.": "h3_gerente_frio"
+            "◈ Bato de frente com o gerente no mesmo tom de voz, afirmando que ele não se importa com a vida dos funcionários e que a culpa é da falta de manutenção.": "h3_briga",
+            "◈ Mantenho a calma, puxo o relatório de medição da válvula e explico friamente o risco iminente de explosão, oferecendo um plano rápido para retomar a produção em segurança.": "h3_gerente_frio"
         }
     },
     "h3_tecnico": {
-        "titulo": "⏳ Corrida Contra o Relógio 🌟",
+        "titulo": "✦ Corrida Contra o Relógio ❖",
         "texto": """O técnico avalia e diz que a peça está prestes a romper, mas que ele consegue fazer uma gambiarra temporária de dez minutos se você assumir o risco de mantê-la ligada enquanto ele mexe.""",
         "opcoes": {
-            "✨ Autorizo o procedimento arriscado na tentativa de salvar a meta do dia a qualquer custo.": "h3_ignorar",
-            "✨ Recuso firmemente o risco à vida do técnico, ordeno o isolamento da área e formalizo o chamado de manutenção pesada.": "h3_parada"
+            "◈ Autorizo o procedimento arriscado na tentativa de salvar a meta do dia a qualquer custo.": "h3_ignorar",
+            "◈ Recuso firmemente o risco à vida do técnico, ordeno o isolamento da área e formalizo o chamado de manutenção pesada.": "h3_parada"
         }
     },
-    "h3_briga": {"titulo": "❌ Insubordinação Crítica 💔", "texto": """Apesar de estar certo sobre o risco técnico, o seu estouro emocional e a humilhação pública contra o seu superior quebram a hierarquia. O gerente te suspende por insubordinação. O comitê de ética valida o risco da máquina, mas pune severamente a sua falta de postura profissional. Sua chances de crescimento na empresa morrem aqui.""", "opcoes": {}},
-    "h3_gerente_frio": {"titulo": "🏆 Liderança de Elite 🎉", "texto": """Sua maturidade desarma a agressividade do gerente. Vendo os dados reais que você apresentou de forma controlada, ele engole o orgulho e reconhece que você evitou uma tragédia humana e financeira gigantesca. No mês seguinte, você é indicado pela diretoria para o prêmio de compliance e promovido a Coordenador de Segurança Operacional da planta. Perfeito!""", "opcoes": {}}
+    "h3_briga": {"titulo": "✦ Insubordinação Crítica ❖", "texto": """Apesar de estar certo sobre o risco técnico, o seu estouro emocional e a humilhação pública contra o seu superior quebram a hierarquia. O gerente te suspende por insubordinação. O comitê de ética valida o risco da máquina, mas pune severamente a sua falta de postura profissional. Sua chances de crescimento na empresa morrem aqui.""", "opcoes": {}},
+    "h3_gerente_frio": {"titulo": "✦ Liderança de Elite ❖", "texto": """Sua maturidade desarma a agressividade do gerente. Vendo os dados reais que você apresentou de forma controlada, ele engole o orgulho e reconhece que você evitou uma tragédia humana e financeira gigantesca. No mês seguinte, você é indicado pela diretoria para o prêmio de compliance e promovido a Coordenador de Segurança Operacional da planta. Perfeito!""", "opcoes": {}}
 }
 
 no_atual = historias[st.session_state.cenario_atual]
@@ -297,14 +292,16 @@ st.markdown(f"<div class='custom-box'>{no_atual['texto']}</div>", unsafe_allow_h
 st.markdown("<hr>", unsafe_allow_html=True)
 
 if "opcoes" in no_atual and no_atual["opcoes"]:
-    st.markdown("<h4 style='color: #fde047; margin-bottom: 15px;'>🧭 COMO VOCÊ REAGE?</h4>", unsafe_allow_html=True)
+    # Ajuste automático do título de ação dependendo se é a tela de instruções ou do jogo
+    label_acao = "◈ INSTRUÇÕES DE ENGAJAMENTO:" if st.session_state.cenario_atual == "instrucoes" else "◈ COMO VOCÊ REAGE?"
+    st.markdown(f"<h4 style='color: #fbbf24; margin-bottom: 15px;'>{label_acao}</h4>", unsafe_allow_html=True)
     for texto_opcao, proximo_passo in no_atual["opcoes"].items():
         if st.button(texto_opcao, key=texto_opcao):
             st.session_state.cenario_atual = proximo_passo
             st.rerun()
 else:
     if not st.session_state.resposta_salva:
-        st.markdown("<h4 style='color: #fde047; margin-bottom: 15px;'>📝 CONSIDERAÇÕES FINAIS</h4>", unsafe_allow_html=True)
+        st.markdown("<h4 style='color: #fbbf24; margin-bottom: 15px;'>◈ CONSIDERAÇÕES FINAIS</h4>", unsafe_allow_html=True)
         resposta_usuario = st.text_area("Diante de todo esse desfecho, o que você faria de agora em diante ou qual lição você tira disso?", placeholder="Escreva sua reflexão ou atitude final aqui...", height=120)
         if st.button("Gravar Resposta Final 🚀"):
             if resposta_usuario.strip() != "":
@@ -314,12 +311,13 @@ else:
             else:
                 st.warning("Escreva algo na caixa de texto antes de salvar!")
     else:
-        st.markdown("<div class='thanks-box'><h3 style='color: #fde047 !important; margin-top: 0px;'>💖 Muito obrigado por participar!</h3><p style='font-size: 1.1rem; margin-bottom: 0px;'>Sua reflexão sobre Inteligência Emocional foi gravada com sucesso e enviada ao painel do avaliador. Seu aprendizado é o primeiro passo para o sucesso corporativo! ✨🌟</p></div>", unsafe_allow_html=True)
+        st.markdown("<div class='thanks-box'><h3 style='color: #fbbf24 !important; margin-top: 0px;'>Agradecemos a sua participação</h3><p style='font-size: 1.05rem; margin-bottom: 0px;'>Sua análise comportamental foi salva com sucesso e enviada ao painel da simulação. O desenvolvimento da inteligência emocional é um pilar estratégico para a liderança eficaz. ✦</p></div>", unsafe_allow_html=True)
 
-st.sidebar.markdown("<h3 style='text-align: center; color: #fde047 !important;'>⭐ CONTROLE ⭐</h3>", unsafe_allow_html=True)
+st.sidebar.markdown("<h3 style='text-align: center; color: #fbbf24 !important;'>❖ CONTROLE ❖</h3>", unsafe_allow_html=True)
 
-if st.sidebar.button("🔄 Reiniciar História"):
-    if st.session_state.cenario_atual.startswith("h1_"):
+if st.sidebar.button("🔄 Alternar Cenário"):
+    # Se clicar no botão flutuante e estiver nas instruções, vai direto para a primeira história
+    if st.session_state.cenario_atual == "instrucoes" or st.session_state.cenario_atual.startswith("h1_"):
         st.session_state.cenario_atual = "h2_inicio"
     elif st.session_state.cenario_atual.startswith("h2_"):
         st.session_state.cenario_atual = "h3_inicio"
